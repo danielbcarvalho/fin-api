@@ -1,37 +1,46 @@
-const { request, response } = require('express');
-const express  = require('express');
+const express = require('express');
+const { v4: uuid } = require('uuid');
 
 const app = express();
+
+const customers = [];
 
 //receber JSON
 app.use(express.json());
 
-app.get('/courses', (request, response) => {
-  const query = request.query;
-  console.log(query);
-  return response.json(["Curso 1", "Curso 2", "Curso 3",]);
+app.post('/account', (request, response) => {
+  const { taxIdentifier, name } = request.body;
+
+  const userAlreadyExists = customers.some((customer) => 
+    customer.taxIdentifier === taxIdentifier
+  )
+
+  if(userAlreadyExists) {
+    return response.status(400).json({error: 'User already exists'});
+  }
+
+  customers.push({
+    taxIdentifier,
+    name,
+    id: uuid(),
+    statement: [],
+  })
+
+  return response.json(customers)
 })
 
-app.post('/courses', (request, response) => {
-  const body = request.body;
-  console.log("🚀 ~ file: index.js ~ line 14 ~ app.post ~ body", body)
-  
-  return response.json(["Curso 1", "Curso 2", "Curso 3", "Curso 4"]);
-})
+app.get('/statement', (request, response) => {
+  const { id } = request.headers;
+  console.log("🚀 ~ file: index.js ~ line 34 ~ app.get ~ id", id)
 
-app.put('/courses/:id', (request, response) => {
-  const params = request.params;
-  console.log(params);
-  return response.json(["Curso Novo", "Curso 2", "Curso 3", "Curso 4"]);
-})
+  const customer = customers.find((customer) => customer.id === id);
 
-app.patch('/courses/:id', (request, response) => {
-  return response.json(["Curso Novo", "Curso Novo 2", "Curso 3", "Curso 4"]);
-})
+  if (!customer) {
+    return response.status(400).json({ error: 'Usuário não localizado'} );
+  }
 
-app.delete('/courses/:id', (request, response) => {
-  return response.json(["Curso Novo", "Curso Novo 2", "Curso 4"]);
+  return response.json(customer.statement);
 })
 
 //localhost:33333
-app.listen(3333)
+app.listen(3333, () => console.log('Server running'))
