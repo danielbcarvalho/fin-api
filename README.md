@@ -1,6 +1,13 @@
 # Fin Api
 
-A basic bank API to practice NodeJs foundations.
+A basic bank API to practice NodeJs and ExpressJS foundations.
+
+* Withdraw
+* Deposit
+* Create Account
+* Update AccountAll donne
+* Delete Account
+* Statement
 
 ## Requirements
 
